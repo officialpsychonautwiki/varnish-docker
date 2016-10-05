@@ -1,10 +1,31 @@
 FROM ubuntu:latest
 
 RUN apt-get update -y
-RUN apt-get install -y varnish
+RUN apt-get install -y automake \
+					   autotools-dev \
+					   libedit-dev \
+					   libjemalloc-dev \
+					   libncurses-dev \
+					   libpcre3-dev \
+					   libtool \
+					   pkg-config \
+					   python-docutils \
+					   python-sphinx \
+					   graphviz \
+					   build-essential \
+					   git
 
-ADD start /start
+RUN git clone https://github.com/varnishcache/varnish-cache /tmp/varnish-cache
 
-RUN chmod 0755 /start
+WORKDIR /tmp/varnish-cache
 
-CMD ["/start"]
+RUN ./autogen.sh
+RUN ./configure
+RUN make -j 8
+RUN make install
+
+ADD start start
+
+RUN chmod 0755 start
+
+CMD ["./start"]
